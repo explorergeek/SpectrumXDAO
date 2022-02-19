@@ -17,3 +17,34 @@ describe("Greeter", function () {
     expect(await greeter.greet()).to.equal("Hola, mundo!");
   });
 });
+
+// Will mint NFT locally to make sure everything is working
+
+const main = async () => {
+  const nftContractFactory = await hre.ethers.getContractFactory('BohoNFT');
+  const nftContract = await nftContractFactory.deploy();
+  await nftContract.deployed();
+  console.log("Contract deployed to:", nftContract.address);
+  
+  // Call the function.
+  let txn = await nftContract.makeABohoNFT()
+  // Wait for it to be mined.
+  await txn.wait()
+
+  // Mint another NFT for fun.
+  txn = await nftContract.makeABohoNFT()
+  // Wait for it to be mined.
+  await txn.wait()
+};
+
+const runMain = async () => {
+  try {
+    await main();
+    process.exit(0);
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+};
+
+runMain();
