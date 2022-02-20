@@ -4,9 +4,10 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import {Base64} from "./libraries/Base64.sol";
 
-contract SpectrumX is ERC721, Ownable {
+contract SpectrumX is ERC721URIStorage, Ownable {
     using Counters for Counters.Counter;
     using Strings for uint256;
     Counters.Counter private _tokenIds;
@@ -18,6 +19,9 @@ contract SpectrumX is ERC721, Ownable {
     uint256 public constant TOKEN_PRICE = 70000000000000000; //0.07ETH
 
     string public baseTokenURI = "ipfs://";
+
+    string svgBase =
+        "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'><style>.base { fill: white; font-family: serif; font-size: 24px; }</style><rect width='100%' height='100%' fill='' /><text x='50%' y='50%' class='base' dominant-baseline='middle' text-anchor='middle'>";
 
     //Structs
     struct RenderToken {
@@ -87,12 +91,45 @@ contract SpectrumX is ERC721, Ownable {
         //return Strings.strConcat(baseTokenURI(), Strings.uint2str(_tokenId));
     }
 
-    function mint(string memory uri) external {
+    function newMint() external {
         uint256 newTokenId = _tokenIds.current() + 1;
         require(newTokenId <= MAX_TOKENS, "No available tokens to mint");
+        string memory nftSVG = string(
+            abi.encodePacked(
+                svgBase,
+                "SpectrumX DAO Membership",
+                "</text></svg>"
+            )
+        );
+
+        string memory json = Base64.encode(
+            bytes(
+                string(
+                    abi.encodePacked(
+                        '{"name": "SpectrumX DAO Membership Pass", "description": "Allows access to SpectrumX DAO including the opportunity to take part in revolutionizing mentorship within web3.", "image": "data:image/svg+xml;base64,',
+                        Base64.encode(bytes(nftSVG)),
+                        '"}'
+                    )
+                )
+            )
+        );
+
+        string memory finalTokenUri = string(
+            abi.encodePacked("data:application/json;base64,", json)
+        );
+
+        console.log("\n-----");
+        console.log(finalTokenUri);
+        console.log("-----\n");
+
         _safeMint(msg.sender, newTokenId);
-        setTokenURI(newTokenId, uri);
+
+        setTokenURI(newTokenId, finalTokenUri);
         _tokenIds.increment();
+
+        console.log("An NFT w/ ID %s has been minted to %s", newTokenId, msg.sender);
+
+        emit NewSpexctrumXNFTMinted(msg.sender, newTokenId);
     }
 
     /**************ADMIN BASE FUNCTIONS *************/
