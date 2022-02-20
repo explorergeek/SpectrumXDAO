@@ -52,12 +52,12 @@ const App = () => {
       }
 
       /*
-      * Fancy method to request access to account.
+      * request access to account.
       */
       const accounts = await ethereum.request({ method: "eth_requestAccounts" });
 
       /*
-      * Boom! This should print out public address once we authorize Metamask.
+      * print out public address once we authorize Metamask.
       */
       setCurrentAccount(accounts[0]);
       console.log("Connected", accounts[0]);
@@ -163,9 +163,9 @@ const App = () => {
     <div className="App">
       <div className="container">
         <div className="header-container">
-          <p className="header gradient-text">Boho NFTs</p>
+          <p className="header gradient-text">SpectrumX DAO</p>
           <p className="sub-text">
-            Positivity beaming from each unique NFT.
+            Revolutionizing Mentorship and Mental Health within the web3 space.
           </p>
           {currentAccount === "" ? (
             renderNotConnectedContainer()
